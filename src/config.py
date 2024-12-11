@@ -46,11 +46,11 @@ class DBSettings(Base):
 class AuthJWT(Base):
     private_key: Path = BASE_DIR.parent / "certs" / "jwt-private.pem"
     public_key: Path = BASE_DIR.parent / "certs" / "jwt-public.pem"
-    ALGORITHM: str
+    ALGORITHM: str = 'RS256'
 
 
 class Settings:
-    # auth_jwt: AuthJWT = AuthJWT()
+    auth_jwt: AuthJWT = AuthJWT()
     cors: CORSSettings = CORSSettings()
     db: DBSettings = DBSettings()
 

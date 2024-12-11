@@ -1,43 +1,65 @@
+from datetime import timedelta, datetime
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from src.users.schemas import UserCreateSchema
-from src.users.service import UserService
+from jose import jwt
+from pydantic import EmailStr
+from src.users.schemas import UserCreateSchema, bcrypt_context
+from src.users.repository import UserRepository
+from src.database.models import User
+from src.auth.schemas import TokenResponseSchema
+from src.config import settings
 
 
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl = "/auth/token")
 
 
-# async def generate_token(email: str, password: str, db_session: AsyncSession):
-#     user: User | None = await AuthService().authenticate_user(
-#         email, password, db_session
-#     )
+async def authenticate_user(email: EmailStr, passw: str, db_session: AsyncSession) -> User | None:
+    user = await UserRepository(db_session).get_user_by_email(email)
 
-#     if not user:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail="Не правильный логин или пароль.",
-#             headers={"Authorization": "Bearer"},
-#         )
-
-#     if not user.is_active:
-#         raise HTTPException(
-#             status_code=status.HTTP_406_NOT_ACCEPTABLE,
-#             detail="Ваш аккаунт не активирован",
-#         )
-
-#     token = AuthService().cteate_access_token(user)
-#     return {"access_token": token, "token_type": "Bearer"}
+    if not user or not bcrypt_context.verify(passw, user.password):
+        return False
+    
+    return user
 
 
-async def authenticate_user():
-    pass
+def cteate_access_token(user: User, expires: timedelta) -> str:
+    expires = datetime.now() + expires
+    encode = {
+        "id": user.id,
+        "exp": expires,
+    }
+
+    return jwt.encode(
+        claims = encode,
+        key = settings.auth_jwt.private_key.read_text(),
+        algorithm = settings.auth_jwt.ALGORITHM,
+    )
+
+
+async def generate_token(email: str, password: str, db_session: AsyncSession) -> TokenResponseSchema:
+    user = await authenticate_user(email, password, db_session)
+
+    if not user:
+        raise HTTPException(
+            status_code = status.HTTP_400_BAD_REQUEST,
+            detail = "Не правильный логин или пароль.",
+            headers = {"Authorization": "Bearer"},
+        )
+
+    expires = timedelta(days=3)
+    token = cteate_access_token(user, expires)
+
+    return TokenResponseSchema(
+        access_token = token,
+        token_type = "Bearer"
+    )
 
 
 async def create_user(data: UserCreateSchema, db_session: AsyncSession):
     try:
-        await UserService(db_session).create_user(data)
+        await UserRepository(db_session).create(data)
     except IntegrityError:
         raise HTTPException(
             status_code = status.HTTP_400_BAD_REQUEST,

@@ -1,8 +1,10 @@
-from datetime import datetime
-from typing import Annotated
-from pydantic import BaseModel, Field, AfterValidator, StringConstraints, EmailStr
-from passlib.context import CryptContext
+from pydantic import BaseModel, EmailStr
 
+
+class UserAuthSchema(BaseModel):
+    email: EmailStr
+    password: str
+    
 
 class TokenResponseSchema(BaseModel):
     access_token: str

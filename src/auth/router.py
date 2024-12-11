@@ -4,8 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from src.dependencies import db_dependency
 from src.users.schemas import UserCreateSchema
 from src.auth.schemas import TokenResponseSchema
-from src.auth.service import create_user
-from src.database.exceptions import AlreadyExists
+from src.auth.service import create_user, generate_token
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -22,4 +21,4 @@ async def sign_up(user_request: UserCreateSchema, db: db_dependency):
 async def sign_in(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
 ):
-    pass
+    return await generate_token(form_data.username, form_data.password, db)
