@@ -1,7 +1,7 @@
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from src.dependencies import db_dependency
+from src.database.dependencies import db_dependency
 from src.users.schemas import UserCreateSchema
 from src.auth.schemas import TokenResponseSchema
 from src.auth.service import create_user, generate_token
