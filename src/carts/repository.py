@@ -27,14 +27,17 @@ class CartRepository(SQLAlchemyRepository):
         res: Result = await self.session.execute(stmt)
         carts = res.fetchall()
 
+        if not carts:
+            return {}
+
         result = []
-        total_sum = 0
+        total_price = 0
         for cart in carts:
             product = cart._asdict()
-            total_sum += product['price'] * product['quantity']
+            total_price += product['price'] * product['quantity']
             result.append(product)
         
-        return {'total_sum': total_sum, 'cart': result}
+        return {'total_price': total_price, 'cart': result}
     
 
     async def get_product(self, user_id: int, product_id: int) -> Cart | None:
@@ -72,7 +75,7 @@ class CartRepository(SQLAlchemyRepository):
         await self.session.commit()
 
     
-    async def delete_from_cart(self, user_id: int, product_id: int) -> None:
+    async def delete_product_from_cart(self, user_id: int, product_id: int) -> None:
         stmt = (
             delete(self.model)
             .where(
@@ -80,5 +83,11 @@ class CartRepository(SQLAlchemyRepository):
                 self.model.user_id == user_id,
             )
         )
+        await self.session.execute(stmt)
+        await self.session.commit()
+
+    
+    async def delete_user_cart(self, user_id: int) -> None:
+        stmt = delete(self.model).where(self.model.user_id == user_id)
         await self.session.execute(stmt)
         await self.session.commit()

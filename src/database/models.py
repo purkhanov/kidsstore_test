@@ -34,7 +34,7 @@ class User(BaseModel):
     password: Mapped[str]
 
     carts: Mapped[list['Cart']] = relationship(back_populates='user')
-    orders: Mapped[list['Orders']] = relationship(back_populates='user')
+    orders: Mapped[list['Order']] = relationship(back_populates='user')
 
 
 class Cart(BaseModel):
@@ -49,11 +49,11 @@ class Cart(BaseModel):
 
 
 
-class Orders(BaseModel):
+class Order(BaseModel):
     __tablename__ = "orders"
 
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     user: Mapped['User'] = relationship(back_populates='orders')
 
     total_price: Mapped[int]
-    status: Mapped[str]
+    status: Mapped[str] = mapped_column(default=Status.pending.value)

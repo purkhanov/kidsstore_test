@@ -4,6 +4,7 @@ from src.config import settings
 from src.products.routes import router as product_router
 from src.auth import router as auth_router
 from src.carts import router as cart_router
+from src.orders import router as order_router
 
 
 app = FastAPI()
@@ -20,3 +21,4 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(product_router)
 app.include_router(cart_router)
+app.include_router(order_router)

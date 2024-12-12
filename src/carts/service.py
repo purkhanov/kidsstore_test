@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.carts.repository import CartRepository
 from src.products.repository import ProductRepository
-from src.database.models import Cart, Product
+from src.database.models import Cart
 
 
 class CartService:
@@ -11,7 +11,7 @@ class CartService:
         self.product_repos = ProductRepository(db_session)
 
 
-    async def get_carts(self, user_id: InterruptedError) -> list[Cart]:
+    async def get_carts(self, user_id: int) -> list[Cart]:
         return await self.repos.get_user_carts(user_id)
     
 
@@ -39,4 +39,4 @@ class CartService:
     
 
     async def delete_cart(self, user_id: int, product_id: int) -> None:
-        await self.repos.delete_from_cart(user_id, product_id)
+        await self.repos.delete_product_from_cart(user_id, product_id)
