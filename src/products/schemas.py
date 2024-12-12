@@ -6,6 +6,7 @@ class ProductsCreateSchema(BaseModel):
     price: int = Field(gt=0)
     description: str | None = Field(default=None, min_length=10)
     category: str = Field(min_length=3, max_length=100)
+    in_stock: int = Field(default=0, gte=0)
 
 
 class ProductsUpdateSchema(BaseModel):
@@ -13,3 +14,4 @@ class ProductsUpdateSchema(BaseModel):
     price: int | None = Field(default=None, gt=0)
     description: str | None = Field(default=None, min_length=10)
     category: str | None = Field(default=None, min_length=3, max_length=100)
+    in_stock: int | None = Field(default=None, gt=0)

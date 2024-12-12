@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, status, Path
-from src.dependencies import db_dependency
+from src.database.dependencies import db_dependency
 from src.products.service import ProductService
 from src.products.schemas import ProductsCreateSchema, ProductsUpdateSchema
 
