@@ -50,9 +50,9 @@ class AuthJWT(Base):
 
 
 class Settings:
-    auth_jwt: AuthJWT = AuthJWT()
-    cors: CORSSettings = CORSSettings()
-    db: DBSettings = DBSettings()
+    auth_jwt = AuthJWT()
+    cors = CORSSettings()
+    db = DBSettings()
 
 
 settings = Settings
