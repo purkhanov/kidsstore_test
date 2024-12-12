@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from src.dependencies import db_dependency
+from src.auth.dependencies import db_dependency
 from src.users.schemas import UserCreateSchema, UserUpdateSchema
 from src.users.service import UserService
 
