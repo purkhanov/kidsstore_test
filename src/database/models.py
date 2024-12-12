@@ -1,7 +1,13 @@
+from enum import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
+
+
+class Status(Enum):
+    created = 'created'
+    pending = 'pending'
 
 
 class BaseModel(AsyncAttrs, DeclarativeBase):
@@ -17,6 +23,7 @@ class Product(BaseModel):
     price: Mapped[int]
     description: Mapped[str | None]
     category: Mapped[str]
+    in_stock: Mapped[int] = mapped_column(default=0)
 
 
 class User(BaseModel):
@@ -26,15 +33,27 @@ class User(BaseModel):
     name: Mapped[str]
     password: Mapped[str]
 
-    cart: Mapped['Cart'] = relationship(back_populates='user')
+    carts: Mapped[list['Cart']] = relationship(back_populates='user')
+    orders: Mapped[list['Orders']] = relationship(back_populates='user')
 
 
 class Cart(BaseModel):
     __tablename__ = "carts"
 
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    user: Mapped['User'] = relationship(back_populates='cart')
+    user: Mapped['User'] = relationship(back_populates='carts')
 
     product_id: Mapped[int] = mapped_column(ForeignKey('products.id'))
 
-    quantity: Mapped[int] = mapped_column(default=1)
+    quantity: Mapped[int] = mapped_column(default=0)
+
+
+
+class Orders(BaseModel):
+    __tablename__ = "orders"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user: Mapped['User'] = relationship(back_populates='orders')
+
+    total_price: Mapped[int]
+    status: Mapped[str]
